@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>View Expenses</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <h2>All Expenses</h2>
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+      {% for expense in expenses %}
+      <tr>
+        <td>{{ expense.title }}</td>
+        <td>{{ expense.amount }}</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.date }}</td>
+        <td>
+          <a href="{{ url_for('delete_expense', id=expense.id) }}">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+  </body>
+</html>
