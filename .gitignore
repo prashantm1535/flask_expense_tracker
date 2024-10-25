@@ -1,0 +1,33 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Environment variables
+*.env
+
+# Python egg and other package files
+*.egg-info/
+*.eggs/
+
+# Flask and log files
+instance/
+*.log
+
+# Static assets
+static/
+
+# Pytest cache
+.pytest_cache/
+
+# IDE settings
+.vscode/
+.idea/
