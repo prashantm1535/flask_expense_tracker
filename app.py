@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask import jsonify
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
@@ -55,6 +56,56 @@ def delete_expense(id):
     db.session.delete(expense_to_delete)
     db.session.commit()
     return redirect(url_for('view_expenses'))
+
+@app.route('/api/expenses', methods=['GET'])
+def api_get_expenses():
+    expenses = Expense.query.order_by(Expense.date.desc()).all()
+    return jsonify([
+        {
+            'id': e.id,
+            'title': e.title,
+            'amount': e.amount,
+            'category': e.category,
+            'date': e.date.strftime('%Y-%m-%d')
+        } for e in expenses
+    ])
+
+# API: Get a single expense by ID
+@app.route('/api/expense/<int:id>', methods=['GET'])
+def api_get_expense(id):
+    expense = Expense.query.get_or_404(id)
+    return jsonify({
+        'id': expense.id,
+        'title': expense.title,
+        'amount': expense.amount,
+        'category': expense.category,
+        'date': expense.date.strftime('%Y-%m-%d')
+    })
+
+# API: Create a new expense
+@app.route('/api/expense', methods=['POST'])
+def api_add_expense():
+    data = request.get_json()
+    try:
+        title = data['title']
+        amount = float(data['amount'])
+        category = data['category']
+        date_obj = datetime.strptime(data['date'], '%Y-%m-%d')
+    except (KeyError, ValueError) as e:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    new_expense = Expense(title=title, amount=amount, category=category, date=date_obj)
+    db.session.add(new_expense)
+    db.session.commit()
+    return jsonify({'message': 'Expense created', 'id': new_expense.id}), 201
+
+# API: Delete an expense
+@app.route('/api/expenses/<int:id>', methods=['DELETE'])
+def api_delete_expense(id):
+    expense = Expense.query.get_or_404(id)
+    db.session.delete(expense)
+    db.session.commit()
+    return jsonify({'message': f'Expense {id} deleted'})
 
 if __name__ == '__main__':
     with app.app_context():
